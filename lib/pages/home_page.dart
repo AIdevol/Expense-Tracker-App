@@ -155,16 +155,22 @@ class _HomepageState extends State<Homepage> {
     );
   }
 
-  Widget _editExpenseButton(Expense expense){
+  Widget _editExpenseButton(Expense expense) {
     return MaterialButton(
-      onPressed: () async{
-        if (nameController.text.isNotEmpty || amountController.text.isNotEmpty
+      onPressed: () async {
+        if (nameController.text.isNotEmpty || amountController.text.isNotEmpty)
+          Navigator.pop(context);
 
-        )
-        Navigator.pop(context);
-
-        Expense updatedExpense = Expense(name: name, amount: amount, date: date)
+        Expense updatedExpense = Expense(
+          name: nameController.text.isNotEmpty
+              ? nameController.text
+              : expense.name,
+          amount: amountController.text.isNotEmpty
+              ? convertStringToDouble(amountController.text)
+              : expense.amount,
+          date: DateTime.now(),
+        );
       },
-    )
+    );
   }
 }
