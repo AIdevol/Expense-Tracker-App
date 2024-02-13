@@ -84,7 +84,22 @@ class _HomepageState extends State<Homepage> {
           // cancel button
           _cancelButtton(),
           // save button
-          _editExpenseButtton(),
+          _editExpenseButtton(expense),
+        ],
+      ),
+    );
+  }
+
+  void openDeleteBox(Expense expense) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text('Delete expense'),
+        actions: [
+          // cancel button
+          _cancelButtton(),
+          // delete button
+          _deleteExpenseButtton(expense.id),
         ],
       ),
     );
@@ -111,8 +126,8 @@ class _HomepageState extends State<Homepage> {
             return MyListTile(
               title: individualExpense.name,
               trailing: formatAmount(individualExpense.amount),
-              onEditPressed: (context) => openEditBox,
-              onDeletePressed: (context) => openDeleteBox,
+              onEditPressed: (context) => openEditBox(individualExpense),
+              onDeletePressed: (context) => openDeleteBox(individualExpense),
             );
           },
         ),
@@ -155,7 +170,7 @@ class _HomepageState extends State<Homepage> {
     );
   }
 
-  Widget _editExpenseButton(Expense expense) {
+  Widget _editExpenseButtton(Expense expense) {
     return MaterialButton(
       onPressed: () async {
         if (nameController.text.isNotEmpty || amountController.text.isNotEmpty)
@@ -170,7 +185,26 @@ class _HomepageState extends State<Homepage> {
               : expense.amount,
           date: DateTime.now(),
         );
+        // old expeneses id
+
+        int existingId = expense.id;
+
+        await context
+            .read<Expensedatabase>()
+            .updateExpense(existingId, updatedExpense);
       },
+      child: const Text('Save'),
+    );
+  }
+
+  Widget _deleteExpenseButtton(int id) {
+    return MaterialButton(
+      onPressed: () async {
+        Navigator.pop(context);
+
+        await context.read<Expensedatabase>().deleteExpense(id);
+      },
+      child: const Text('Delete'),
     );
   }
 }
