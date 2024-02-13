@@ -1,3 +1,4 @@
+import 'package:expense_tracker/bar%20graph/bar_graph.dart';
 import 'package:expense_tracker/components/my_list_tile.dart';
 import 'package:expense_tracker/database/expense_database.dart';
 import 'package:expense_tracker/helper/helper_fn.dart';
@@ -16,10 +17,24 @@ class _HomepageState extends State<Homepage> {
   TextEditingController nameController = TextEditingController();
   TextEditingController amountController = TextEditingController();
 
+  // futures to load graph data
+  Future<Map<int, double>>? _monthlyTotalsFuture;
+
   @override
   void initState() {
+    // read db on initial startup
     Provider.of<Expensedatabase>(context, listen: false).readExpenses();
+
+    // load futures
+    refreshGraphData();
+
     super.initState();
+  }
+
+  // refresh graph data
+  void refreshGraphData() {
+    _monthlyTotalsFuture = Provider.of<Expensedatabase>(context, listen: false)
+        .calculateMonthlyTotals();
   }
 
   @override
@@ -107,32 +122,81 @@ class _HomepageState extends State<Homepage> {
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<Expensedatabase>(
-      builder: (
-        context,
-        value,
-        child,
-      ) =>
-          Scaffold(
+    return Consumer<Expensedatabase>(builder: (
+      context,
+      value,
+      child,
+    ) {
+      // get dates
+      int startMonth = value.getStartMonth();
+      int startYear = value.getStartYear();
+      int currentMonth = DateTime.now().month;
+      int currentYear = DateTime.now().year;
+
+      // calculate the number of months since the first month
+      int monthCount =
+          calculateMonthCount(startYear, startMonth, currentYear, currentMonth);
+
+      // only display the expenses for the the current month
+
+      return Scaffold(
         floatingActionButton: FloatingActionButton(
           onPressed: openNewExpenseBox,
           child: Icon(Icons.add),
         ),
-        body: ListView.builder(
-          itemCount: value.allExpense.length,
-          itemBuilder: (context, index) {
-            Expense individualExpense = value.allExpense[index];
+        body: SafeArea(
+          child: Column(
+            children: [
+              // graph ui
+              SizedBox(
+                height: 250,
+                child: FutureBuilder(
+                    future: _monthlyTotalsFuture,
+                    builder: (context, snapshot) {
+                      // data is loaded
+                      if (snapshot.connectionState == ConnectionState.done) {
+                        final monthlyTotals = snapshot.data ?? {};
 
-            return MyListTile(
-              title: individualExpense.name,
-              trailing: formatAmount(individualExpense.amount),
-              onEditPressed: (context) => openEditBox(individualExpense),
-              onDeletePressed: (context) => openDeleteBox(individualExpense),
-            );
-          },
+                        // create the list monthly summary
+                        List<double> monthlySummery = List.generate(
+                            monthCount,
+                            (index) =>
+                                monthlyTotals[startMonth + index] ?? 0.0);
+
+                        return MyBarGraph(
+                            monthlySummery: monthlySummery,
+                            startMonth: startMonth);
+                      }
+                      // loading...
+                      else {
+                        return const Center(
+                          child: Text('loading..'),
+                        );
+                      }
+                    }),
+              ),
+              Expanded(
+                child: ListView.builder(
+                  itemCount: value.allExpense.length,
+                  itemBuilder: (context, index) {
+                    Expense individualExpense = value.allExpense[index];
+
+                    return MyListTile(
+                      title: individualExpense.name,
+                      trailing: formatAmount(individualExpense.amount),
+                      onEditPressed: (context) =>
+                          openEditBox(individualExpense),
+                      onDeletePressed: (context) =>
+                          openDeleteBox(individualExpense),
+                    );
+                  },
+                ),
+              ),
+            ],
+          ),
         ),
-      ),
-    );
+      );
+    });
   }
 
   Widget _cancelButtton() {
