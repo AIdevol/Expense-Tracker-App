@@ -20,6 +20,14 @@ class MyBarGraph extends StatefulWidget {
 class _MyBarGraphState extends State<MyBarGraph> {
   List<IndividualBar> barData = [];
 
+  @override
+  void initState() {
+    super.initState();
+
+    // we need to scroll to the latest month automatically
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) => scrollToEnd());
+  }
+
   void initializeBarData() {
     barData = List.generate(
       widget.monthlySummery.length,
@@ -46,6 +54,13 @@ class _MyBarGraphState extends State<MyBarGraph> {
     return max;
   }
 
+  // scroll controller to make sure it scrolls to the end / latest month
+  final ScrollController _scrollController = ScrollController();
+  void scrollToEnd() {
+    _scrollController.animateTo(_scrollController.position.maxScrollExtent,
+        duration: const Duration(seconds: 1), curve: Curves.fastOutSlowIn);
+  }
+
   @override
   Widget build(BuildContext context) {
     // initialize upon build
@@ -57,6 +72,7 @@ class _MyBarGraphState extends State<MyBarGraph> {
 
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
+      controller: _scrollController,
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 25.0),
         child: SizedBox(

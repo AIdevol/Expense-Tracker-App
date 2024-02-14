@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 
@@ -17,28 +19,37 @@ class MyListTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Slidable(
-      endActionPane: ActionPane(
-        motion: const StretchMotion(),
-        children: [
-          SlidableAction(
-            onPressed: onEditPressed,
-            icon: Icons.settings,
-            backgroundColor: Colors.grey,
-            foregroundColor: Colors.white,
-            borderRadius: BorderRadius.circular(4),
-          ),
-          SlidableAction(
-              onPressed: onDeletePressed,
-              icon: Icons.delete,
-              backgroundColor: Colors.red,
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 5.0, horizontal: 25),
+      child: Slidable(
+        endActionPane: ActionPane(
+          motion: const StretchMotion(),
+          children: [
+            SlidableAction(
+              onPressed: onEditPressed,
+              icon: Icons.settings,
+              backgroundColor: Colors.grey,
               foregroundColor: Colors.white,
-              borderRadius: BorderRadius.circular(4)),
-        ],
-      ),
-      child: ListTile(
-        title: Text(title),
-        trailing: Text(trailing),
+              borderRadius: BorderRadius.circular(4),
+            ),
+            SlidableAction(
+                onPressed: onDeletePressed,
+                icon: Icons.delete,
+                backgroundColor: Colors.red,
+                foregroundColor: Colors.white,
+                borderRadius: BorderRadius.circular(4)),
+          ],
+        ),
+        child: Container(
+          decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(8),
+              color: Colors.grey.shade200),
+          margin: const EdgeInsets.symmetric(vertical: 5.0, horizontal: 25),
+          child: ListTile(
+            title: Text(title),
+            trailing: Text(trailing),
+          ),
+        ),
       ),
     );
   }

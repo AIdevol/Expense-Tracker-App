@@ -18,7 +18,7 @@ class _HomepageState extends State<Homepage> {
   TextEditingController amountController = TextEditingController();
 
   // futures to load graph data & monthly total
-  Future<Map<int, double>>? _monthlyTotalsFuture;
+  Future<Map<String, double>>? _monthlyTotalsFuture;
   Future<double>? _calculateCurrentMonthTotal;
 
   @override
@@ -160,7 +160,16 @@ class _HomepageState extends State<Homepage> {
               builder: (context, snapshot) {
                 // loaded
                 if (snapshot.connectionState == ConnectionState.done) {
-                  return Text('\$' + snapshot.data!.toStringAsFixed(2));
+                  return Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      // amount total
+                      Text('\$${snapshot.data!.toStringAsFixed(2)}'),
+
+                      // month
+                      Text(getCurrentMonthName()),
+                    ],
+                  );
                 }
                 // loading
                 else {
@@ -179,13 +188,20 @@ class _HomepageState extends State<Homepage> {
                     builder: (context, snapshot) {
                       // data is loaded
                       if (snapshot.connectionState == ConnectionState.done) {
-                        final monthlyTotals = snapshot.data ?? {};
+                        Map<String, double> monthlyTotals = snapshot.data ?? {};
 
                         // create the list monthly summary
-                        List<double> monthlySummery = List.generate(
-                            monthCount,
-                            (index) =>
-                                monthlyTotals[startMonth + index] ?? 0.0);
+                        List<double> monthlySummery =
+                            List.generate(monthCount, (index) {
+                          // calculate year-monthconsidering startMonth & index
+                          int year = startYear + (startMonth + index - 1) ~/ 12;
+                          int month = (startMonth + index - 1) % 12 + 1;
+
+                          // create the key in the format 'year - month'
+                          String yearMonthKey = '$year-$month';
+
+                          return monthlyTotals[yearMonthKey] ?? 0.0;
+                        });
 
                         return MyBarGraph(
                             monthlySummery: monthlySummery,
@@ -199,6 +215,8 @@ class _HomepageState extends State<Homepage> {
                       }
                     }),
               ),
+
+              const SizedBox(height: 25,),
               Expanded(
                 child: ListView.builder(
                   itemCount: currentMonthExpense.length,

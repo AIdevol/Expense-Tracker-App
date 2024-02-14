@@ -54,24 +54,25 @@ HELPER
 */
 
 // calculate total expenses for each month
-  Future<Map<int, double>> calculateMonthlyTotals() async {
+  Future<Map<String, double>> calculateMonthlyTotals() async {
     // ensure the expenses are read from the db
     await readExpenses();
 
     // create a map to keep track of total expenses per month
-    Map<int, double> monthlyTotals = {};
+    Map<String, double> monthlyTotals = {};
 
     // iterate over all expenses
     for (var expense in _allExpenses) {
-      // extract the month from the date of the expense
-      int month = expense.date.month;
+      // extract the year & month from the date of the expense
 
-      // if the month is not yet in the map , initialize to 0
-      if (!monthlyTotals.containsKey(month)) {
-        monthlyTotals[month] = 0;
+      String yearMonth =
+          '${expense.date.year}-${expense.date.month}';
+      // if the year-month is not yet in the map , initialize to 0
+      if (!monthlyTotals.containsKey(yearMonth)) {
+        monthlyTotals[yearMonth] = 0;
       }
       //  add the expense amount to the total for the month
-      monthlyTotals[month] = monthlyTotals[month]! + expense.amount;
+      monthlyTotals[yearMonth] = monthlyTotals[yearMonth]! + expense.amount;
     }
     return monthlyTotals;
   }
