@@ -137,9 +137,13 @@ class _HomepageState extends State<Homepage> {
       int monthCount =
           calculateMonthCount(startYear, startMonth, currentYear, currentMonth);
 
+    
+
       // only display the expenses for the the current month
+      List<Expense>currentMonthExpense
 
       return Scaffold(
+        backgroundColor: Colors.grey.shade300,
         floatingActionButton: FloatingActionButton(
           onPressed: openNewExpenseBox,
           child: Icon(Icons.add),
@@ -226,6 +230,8 @@ class _HomepageState extends State<Homepage> {
 
           await context.read<Expensedatabase>().createNewExpense(newExpense);
 
+          refreshGraphData();
+
           nameController.clear();
           amountController.clear();
         }
@@ -256,6 +262,7 @@ class _HomepageState extends State<Homepage> {
         await context
             .read<Expensedatabase>()
             .updateExpense(existingId, updatedExpense);
+        refreshGraphData();
       },
       child: const Text('Save'),
     );
@@ -267,6 +274,8 @@ class _HomepageState extends State<Homepage> {
         Navigator.pop(context);
 
         await context.read<Expensedatabase>().deleteExpense(id);
+
+        refreshGraphData();
       },
       child: const Text('Delete'),
     );
