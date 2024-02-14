@@ -76,6 +76,29 @@ HELPER
     return monthlyTotals;
   }
 
+// calculate current month total
+  Future<double> calculateCurrentMonthTotal() async {
+    // ensure expenses are read from db first
+    await readExpenses();
+
+    // get current month, year
+    int currentMonth = DateTime.now().month;
+    int currentYear = DateTime.now().year;
+
+    // filter the expenses to include only those for this month this year
+
+    List<Expense> currentMonthExpreses = _allExpenses.where((expense) {
+      return expense.date.month == currentMonth &&
+          expense.date.year == currentYear;
+    }).toList();
+
+    //  calculate total amount for the current month
+    double total =
+        currentMonthExpreses.fold(0, (sum, expense) => sum + expense.amount);
+
+    return total;
+  }
+
   // get start month
   int getStartMonth() {
     if (_allExpenses.isEmpty) {
