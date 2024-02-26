@@ -150,6 +150,7 @@ class _HomepageState extends State<Homepage> {
       return Scaffold(
         backgroundColor: Colors.grey.shade300,
         floatingActionButton: FloatingActionButton(
+          backgroundColor: Colors.grey.shade700,
           onPressed: openNewExpenseBox,
           child: Icon(Icons.add),
         ),
@@ -216,7 +217,9 @@ class _HomepageState extends State<Homepage> {
                     }),
               ),
 
-              const SizedBox(height: 25,),
+              const SizedBox(
+                height: 25,
+              ),
               Expanded(
                 child: ListView.builder(
                   itemCount: currentMonthExpense.length,
